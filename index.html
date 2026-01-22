@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KeremAI v10 - Secure</title>
+    <title>KeremAI v11 - Math & Secure</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     
     <style>
         /* --- Temel Ayarlar --- */
@@ -24,10 +31,15 @@
             display: flex; height: 100vh; height: 100dvh; overflow: hidden;
         }
 
-        /* --- GÜVENLİK EKRANI (LOGIN) --- */
+        /* --- MATEMATİK STİLİ --- */
+        .katex-display { overflow-x: auto; overflow-y: hidden; padding: 10px 0; }
+        .katex { font-size: 1.1em; }
+
+        /* --- GÜVENLİK EKRANI (Düzeltildi) --- */
         #loginOverlay {
             position: fixed; inset: 0; background: #000000; z-index: 9999;
             display: flex; align-items: center; justify-content: center; flex-direction: column;
+            transition: opacity 0.5s ease; /* Yumuşak geçiş */
         }
         .login-box {
             background: #18181b; padding: 40px; border-radius: 24px; border: 1px solid #27272a;
@@ -40,7 +52,7 @@
         }
         .login-input {
             width: 100%; padding: 14px; background: #09090b; border: 1px solid #27272a;
-            color: white; border-radius: 12px; margin-bottom: 20px; font-size: 16px; text-align: center; letter-spacing: 2px;
+            color: white; border-radius: 12px; margin-bottom: 20px; font-size: 16px; text-align: center; letter-spacing: 1px;
         }
         .login-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
         .login-btn {
@@ -162,7 +174,7 @@
 
 <div class="sidebar" id="sidebar">
     <div class="brand">
-        KeremAI <span style="font-size:11px; padding:4px 8px; background:#27272a; border-radius:6px; color:#a1a1aa;">v10</span>
+        KeremAI <span style="font-size:11px; padding:4px 8px; background:#27272a; border-radius:6px; color:#a1a1aa;">v11</span>
         <button class="close-sidebar" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="new-chat" onclick="ChatManager.newChat(); toggleSidebar()">
@@ -172,8 +184,8 @@
     <div class="settings-btn" onclick="UIManager.openModal()">
         <i class="fa-solid fa-sliders"></i> API Ayarları
     </div>
-</div>
-<div class="main">
+        </div>
+    <div class="main">
     <div class="header">
         <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
         <div class="modes">
@@ -187,7 +199,7 @@
     <div class="chat-area" id="chatArea">
         <div style="text-align: center; margin-top: 30vh; opacity: 0.6; transform: translateY(-20px);">
             <h1 style="background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size:42px; margin:0 0 10px 0;">KeremAI</h1>
-            <p style="color:#a1a1aa;">Güvenli Sistem Aktif</p>
+            <p style="color:#a1a1aa;">Matematik Dehası & Tam Güvenlik</p>
         </div>
     </div>
 
@@ -201,7 +213,7 @@
                 <input type="file" hidden accept="image/*" onchange="ImageManager.handleSelect(this)">
                 <i class="fa-regular fa-image"></i>
             </label>
-            <input type="text" id="userInput" placeholder="Mesaj yaz..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Bir şeyler yaz..." autocomplete="off">
             <button class="icon-btn" id="sendBtn" style="color:var(--accent);" onclick="ChatManager.sendMessage()">
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
@@ -230,19 +242,20 @@
             <label class="form-label">Base URL</label>
             <input type="text" id="baseUrlInp" class="form-control" placeholder="https://openrouter.ai/api/v1">
         </div>
-        <button class="btn btn-save" onclick="APIManager.saveConfig()">Kaydet</button>
+        <button class="btn btn-save" onclick="APIManager.saveConfig()">Ayarları Kaydet</button>
         <button class="btn" style="background:transparent; color:#a1a1aa; margin-top:0;" onclick="UIManager.closeModal()">Vazgeç</button>
     </div>
 </div>
 
 <script>
-    // --- GÜVENLİK SİSTEMİ ---
+    // --- GÜVENLİK SİSTEMİ (BUG FİX) ---
     const SECURITY = {
         pass: "EemkmsssöLşpsMNA12",
         check: () => {
             const inp = document.getElementById('sysPass');
             const err = document.getElementById('loginError');
-            if(inp.value === SECURITY.pass) {
+            // .trim() fonksiyonu baştaki ve sondaki görünmez boşlukları siler (Mobil klavye hatasını çözer)
+            if(inp.value.trim() === SECURITY.pass) {
                 document.getElementById('loginOverlay').style.display = 'none';
                 ChatManager.init(); // Sistemi başlat
             } else {
@@ -259,17 +272,17 @@
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').classList.toggle('active'); }
 
     const State = {
-        chats: JSON.parse(localStorage.getItem('keremai_v10_chats')) || [],
+        chats: JSON.parse(localStorage.getItem('keremai_v11_chats')) || [],
         activeChatId: null,
-        savedModels: JSON.parse(localStorage.getItem('keremai_v10_models')) || [], 
-        config: JSON.parse(localStorage.getItem('keremai_v10_config')) || { provider: 'google', key: '', model: '', baseUrl: '' },
+        savedModels: JSON.parse(localStorage.getItem('keremai_v11_models')) || [], 
+        config: JSON.parse(localStorage.getItem('keremai_v11_config')) || { provider: 'google', key: '', model: '', baseUrl: '' },
         currentMode: 'hizli', currentImg: null, isTyping: false
     };
 
     const Prompts = {
         hizli: "Sen KeremAI'sın. Türkçe konuş. En kısa, net ve doğrudan cevabı ver.",
-        pro: "Sen KeremAI'sın. Üst düzey bir yapay zeka asistanısın. Markdown formatında (kalın, liste, kod bloğu) detaylı ve profesyonel cevaplar ver.",
-        dusunen: "Sen KeremAI'sın. [DERİN ANALİZ] modundasın. Soruyu adım adım düşün. Mantıksal analiz yap. Kod yazıyorsan en güvenli ve modern yöntemi seç. Sadece sonucu mükemmel şekilde ver."
+        pro: "Sen KeremAI'sın. Üst düzey bir yapay zeka asistanısın. Markdown formatında detaylı ve profesyonel cevaplar ver.",
+        dusunen: "Sen KeremAI'sın. Mantık yürüt. Eğer matematik sorusu varsa LaTeX formatında (örn: $$...$$) cevap ver."
     };
 
     const ImageManager = {
@@ -297,10 +310,8 @@
             const k = document.getElementById('apiKeyInp').value; const p = document.getElementById('providerSel').value;
             const m = document.getElementById('scanMsg'); const sel = document.getElementById('modelSel'); const btn = document.getElementById('scanBtn');
             const base = document.getElementById('baseUrlInp').value || 'https://openrouter.ai/api/v1';
-
             if(!k) return m.innerText = "❌ Lütfen anahtar girin";
             m.innerText = "Bağlanıyor..."; btn.disabled=true;
-
             try {
                 let list = [];
                 if(p === 'google') {
@@ -313,7 +324,7 @@
                     const d = await r.json(); if(d.error) throw new Error(d.error.message);
                     const data = d.data || d; list = data.map(x=>({id:x.id, name:x.name||x.id})).sort((a,b)=>a.id.localeCompare(b.id));
                 }
-                State.savedModels = list; localStorage.setItem('keremai_v10_models', JSON.stringify(list));
+                State.savedModels = list; localStorage.setItem('keremai_v11_models', JSON.stringify(list));
                 APIManager.populateModelSelect(list);
                 m.innerText = `✅ ${list.length} model bulundu`; m.style.color="#4ade80";
             } catch(e) { m.innerText = "Hata: " + e.message; m.style.color="#ef4444"; } finally { btn.disabled=false; }
@@ -325,7 +336,7 @@
         },
         saveConfig: () => {
             State.config = { provider: document.getElementById('providerSel').value, key: document.getElementById('apiKeyInp').value, model: document.getElementById('modelSel').value, baseUrl: document.getElementById('baseUrlInp').value };
-            localStorage.setItem('keremai_v10_config', JSON.stringify(State.config));
+            localStorage.setItem('keremai_v11_config', JSON.stringify(State.config));
             UIManager.closeModal(); ChatManager.init();
         },
         generate: async (hist, txt, img) => {
@@ -377,13 +388,11 @@
             const img = State.currentImg;
             if(!txt && !img) return;
             if(!State.config.key) return UIManager.openModal();
-
             const chat = State.chats.find(c=>c.id===State.activeChatId);
             UIManager.appendMsg('user', txt, img?img.full:null);
             document.getElementById('userInput').value = ''; ImageManager.clear();
             chat.messages.push({role:'user', content:txt + (img?" [Görsel]":"")});
             if(chat.messages.length===1 && txt) { chat.title = txt.substring(0,25); UIManager.renderSidebar(); }
-
             State.isTyping = true; document.getElementById('sendBtn').style.opacity = "0.5";
             const aiMsgBubble = UIManager.createAiBubble();
             try {
@@ -392,7 +401,7 @@
                 chat.messages.push({role:'ai', content:res}); ChatManager.save();
             } catch(e) { aiMsgBubble.innerHTML = "⚠️ Hata: " + e.message; } finally { State.isTyping = false; document.getElementById('sendBtn').style.opacity = "1"; }
         },
-        save: () => localStorage.setItem('keremai_v10_chats', JSON.stringify(State.chats)),
+        save: () => localStorage.setItem('keremai_v11_chats', JSON.stringify(State.chats)),
         setMode: (m, el) => { State.currentMode = m; document.querySelectorAll('.mode-opt').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
     };
 
@@ -417,7 +426,12 @@
             const d = document.createElement('div'); d.className = `msg ${role}`;
             const b = document.createElement('div'); b.className = 'bubble';
             if(role === 'user') { let h = txt; if(img) h += `<br><img src="${img}">`; b.innerHTML = h; } 
-            else { b.innerHTML = marked.parse(txt); UIManager.addCopyButtons(b); }
+            else { 
+                b.innerHTML = marked.parse(txt); 
+                // Matematik Render (KaTeX) - Yükleme anında
+                renderMathInElement(b, {delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}]});
+                UIManager.addCopyButtons(b); 
+            }
             d.innerHTML = `<div class="avatar ${role}">${role==='ai'?'<i class="fa-solid fa-robot"></i>':'<i class="fa-solid fa-user"></i>'}</div>`; d.appendChild(b);
             const a = document.getElementById('chatArea'); a.appendChild(d); a.scrollTop = a.scrollHeight;
         },
@@ -433,7 +447,14 @@
                 let i = 0; const speed = 10;
                 const interval = setInterval(() => {
                     el.textContent += txt.charAt(i); i++; const a = document.getElementById('chatArea'); a.scrollTop = a.scrollHeight;
-                    if (i >= txt.length) { clearInterval(interval); el.classList.remove('typing-cursor'); el.innerHTML = marked.parse(txt); UIManager.addCopyButtons(el); resolve(); }
+                    if (i >= txt.length) { 
+                        clearInterval(interval); el.classList.remove('typing-cursor');
+                        el.innerHTML = marked.parse(txt); 
+                        // Matematik Render (KaTeX) - Yazma bitince
+                        renderMathInElement(el, {delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}]});
+                        UIManager.addCopyButtons(el); 
+                        resolve(); 
+                    }
                 }, speed);
             });
         },
@@ -448,8 +469,7 @@
         }
     };
     
-    // Güvenlik olduğu için window.onload'da ChatManager'ı direkt başlatmıyoruz.
-    // Şifre girilince başlatıyoruz.
+    // Auto-init yok, şifreden sonra başlayacak.
 </script>
 </body>
 </html>
